@@ -35,11 +35,10 @@ class ProfileListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         if self.request.user.username == self.kwargs['username']:
-            print(Post.objects.select_related('author').filter(
-                title='Не дурно прожил'
-            ))
             return Post.objects.select_related('author').filter(
                 author__username=self.kwargs['username']
+            ).annotate(
+                comment_count=Count('comments')
             ).order_by('-pub_date')
         else:
             return Post.objects.select_related('author').filter(
@@ -198,7 +197,10 @@ class CommentMixin:
     pk_url_kwarg = 'comment_id'    
 
     def dispatch(self, request, *args, **kwargs):
-        get_object_or_404(self.model, pk=kwargs['comment_id'], author=request.user)
+        # get_object_or_404(self.model, pk=kwargs['comment_id'], author=request.user)
+        instance = get_object_or_404(Post, pk=kwargs['comment_id'])
+        if instance.author != request.user:
+            return redirect('blog:index')
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -227,7 +229,9 @@ class CategoryDetailView(DetailView):
                 category__slug=self.kwargs['category_slug'],
                 is_published=True,
                 pub_date__lte=date.today()
-            ),
+            ).annotate(
+                comment_count=Count('comments')
+            ).order_by('-pub_date'),
             10
         )
         page_number = self.request.GET.get('page')
