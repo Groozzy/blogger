@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure--yzaa1xne1j1tqrnq=bd2cu10f2zu5ezvtl!3f!5)*l_h9ef5q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'www.groozzy.pythonanywhere.com',
+    'groozzy.pythonanywhere.com',
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 

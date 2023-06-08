@@ -1,24 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.query import QuerySet
 from django.urls import reverse
-
-from datetime import date
 
 from core.models import BaseModel
 
 
 User = get_user_model()
-
-
-class PublishedManager(models.Manager):
-
-    def get_queryset(self) -> QuerySet:
-        return super().get_queryset().filter(
-            pub_date__lte=date.today(),
-            is_published=True,
-            category__is_published=True
-        )
 
 
 class Category(BaseModel):
