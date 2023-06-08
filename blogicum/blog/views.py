@@ -31,15 +31,17 @@ class ProfileListView(ListView):
     paginate_by = 10
 
     def dispatch(
-            self, request: HttpRequest, *args: Any, **kwargs: Any
+        self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponse:
         self.user = get_object_or_404(User, username=self.kwargs["username"])
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[Any]:
-        queryset = Post.objects.select_related("author").filter(
-            author__username=self.kwargs["username"]
-        ).order_by("-pub_date")
+        queryset = (
+            Post.objects.select_related("author")
+            .filter(author__username=self.kwargs["username"])
+            .order_by("-pub_date")
+        )
         if self.request.user.username == self.kwargs["username"]:
             return queryset.annotate(comment_count=Count("comments"))
         else:
@@ -71,7 +73,7 @@ def get_published_posts():
     ).filter(
         pub_date__lte=date.today(),
         is_published=True,
-        category__is_published=True
+        category__is_published=True,
     )
 
 
@@ -124,7 +126,7 @@ class UpdateDeleteMixin(LoginRequiredMixin):
             raise Http404
 
         if obj.author != self.request.user:
-            return redirect('blog:post_detail', pk)
+            return redirect("blog:post_detail", pk)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -156,7 +158,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     pk_url_kwarg = "post_id"
 
     def dispatch(
-            self, request: HttpRequest, *args: Any, **kwargs: Any
+        self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponse:
         self.post_object = get_object_or_404(Post, pk=kwargs["post_id"])
         return super().dispatch(request, *args, **kwargs)
@@ -175,8 +177,8 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class CommentUpdateView(UpdateDeleteMixin, UpdateView):
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comment.html'
-    pk_url_kwarg = 'comment_id'
+    template_name = "blog/comment.html"
+    pk_url_kwarg = "comment_id"
 
     def get_success_url(self):
         return reverse(
@@ -187,8 +189,8 @@ class CommentUpdateView(UpdateDeleteMixin, UpdateView):
 class CommentDeleteView(UpdateDeleteMixin, DeleteView):
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comment.html'
-    pk_url_kwarg = 'comment_id'
+    template_name = "blog/comment.html"
+    pk_url_kwarg = "comment_id"
 
     def get_success_url(self):
         return reverse(
@@ -203,7 +205,7 @@ class CategoryDetailView(DetailView):
     slug_url_kwarg = "category_slug"
 
     def dispatch(
-            self, request: HttpRequest, *args: Any, **kwargs: Any
+        self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponse:
         get_object_or_404(
             Category, slug=kwargs["category_slug"], is_published=True
@@ -214,7 +216,8 @@ class CategoryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["category"] = self.get_object()
         paginator = Paginator(
-            get_published_posts().annotate(comment_count=Count("comments"))
+            get_published_posts()
+            .annotate(comment_count=Count("comments"))
             .order_by("-pub_date"),
             10,
         )

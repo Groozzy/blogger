@@ -11,17 +11,17 @@ urlpatterns = [
     path(
         "posts/<int:post_id>/",
         views.PostDetailView.as_view(),
-        name="post_detail"
+        name="post_detail",
     ),
     path(
         "posts/<int:post_id>/edit/",
         views.PostUpdateView.as_view(),
-        name="edit_post"
+        name="edit_post",
     ),
     path(
         "posts/<int:pk>/delete",
         views.PostDeleteView.as_view(),
-        name="delete_post"
+        name="delete_post",
     ),
     path(
         "category/<slug:category_slug>/",
@@ -44,13 +44,11 @@ urlpatterns = [
         name="delete_comment",
     ),
     path(
-        "profile/edit/",
-        views.ProfileUpdateView.as_view(),
-        name="edit_profile"
+        "profile/edit/", views.ProfileUpdateView.as_view(), name="edit_profile"
     ),
     path(
         "profile/<slug:username>/",
         views.ProfileListView.as_view(),
-        name="profile"
+        name="profile",
     ),
 ]
